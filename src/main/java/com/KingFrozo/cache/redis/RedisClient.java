@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 public class RedisClient {
 
-    protected RedissonClient redisson;
+    public RedissonClient redisson;
 
     private String address;
     private Config config;
@@ -21,6 +21,7 @@ public class RedisClient {
     public RedisClient(String address) {
         this.address = address;
         config = new Config();
+        config.useSingleServer().setAddress(address);
 
         System.out.println("Instantiated Redis Client");
     }
@@ -31,6 +32,10 @@ public class RedisClient {
     }
 
     public void shutdown() {
+        if(redisson.isShutdown()){
+            System.out.println("Redis Client is already shut down...");
+            return;
+        }
         redisson.shutdown();
         System.out.println("Redis Client Shutting Down");
     }
@@ -42,6 +47,7 @@ public class RedisClient {
     public void loadConfig(String fileName) throws IOException {
         String content = new Scanner(new File(fileName)).useDelimiter("\\Z").next();
         config = Config.fromJSON(content);
+        config.useSingleServer().setAddress(address);
     }
 
     public void writeOutConfig(String fileName) throws IOException {
